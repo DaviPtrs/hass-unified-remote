@@ -1,0 +1,8 @@
+{
+  "domain": "unified_control",
+  "name": "Unified Remote Control",
+  "documentation": "",
+  "dependencies": [],
+  "codeowners": ["@DaviPtrs"],
+  "requirements": []
+}
