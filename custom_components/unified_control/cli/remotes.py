@@ -1,4 +1,4 @@
-from cli.yaml_parser import yaml_load
+from yaml_parser import yaml_load
 
 class Remotes():
     def __init__(self, yaml_path="remotes.yml"):
@@ -43,6 +43,3 @@ class Remotes():
         yaml_remotes = yaml_data.get("remotes")
         self.__append_remote_type(yaml_remotes)
         return yaml_remotes
-
-if __name__ == "__main__":
-    Remotes("/home/davi/hass-unified-remote/custom_components/unified_control/cli/remotes.yml")

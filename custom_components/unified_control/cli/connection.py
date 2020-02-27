@@ -48,7 +48,6 @@ class Connection():
     def exe_remote(self, remoteID, action):
         payload = {"ID":remoteID,"Action":7,"Request":7,"Run":{"Name":action},"Source":self.__source_guid}
         response = self.__session.post(self.__url+'request', headers=self.__headers, data=dumps(payload))
-        print()
 
     def get_headers(self):
         return self.__headers
