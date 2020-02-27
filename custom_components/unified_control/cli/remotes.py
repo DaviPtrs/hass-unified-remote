@@ -37,7 +37,7 @@ class Remotes():
             try:
                 self.__remote_validator(remote)
             except AssertionError:
-                raise Exception(f"Invalid parsing for remote \"{name}\"")
+                raise AssertionError(f"Invalid parsing for remote \"{name}\"")
 
     def __remote_parser(self, yaml_data: dict):
         yaml_remotes = yaml_data.get("remotes")
