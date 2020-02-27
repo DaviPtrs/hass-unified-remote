@@ -5,7 +5,7 @@ from uuid import uuid4
 import re
 
 class Connection():
-    def __init__(self, host="localhost", port="9510"):
+    def __init__(self, host, port):
         self.__url = f"http://{host}:{port}/client/"
         assert self.__validate_url(), AssertionError("Malformed URL!")
         self.__source_guid = ""
@@ -37,7 +37,7 @@ class Connection():
         password = str(uuid4())
         payload = {'Action':0,'Request':0,'Version':10,'Password':password,'Platform':'web','Source':self.__source_guid}
         response = self.__session.post(self.__url+'request', headers=self.__headers, data=dumps(payload))
-        
+
         payload = {
                     "Capabilities":{"Actions":True,"Sync":True,"Grid":True,"Fast":False,
                     "Loading":True,"Encryption2":True},"Action":1,"Request":1,"Source":self.__source_guid
