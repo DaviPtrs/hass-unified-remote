@@ -1,0 +1,3 @@
+.env
+custom_components/unified_control/cli/__pycache__
+.vscode/launch.json

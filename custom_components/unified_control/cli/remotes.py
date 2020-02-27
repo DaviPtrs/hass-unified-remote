@@ -17,7 +17,7 @@ class Remotes():
 
     def __remote_validator(self, remote: dict):
         assert "id" in remote.keys()
-        assert "type" in remote.keys() or "controls" in remote.keys()
+        assert "type" in remote.keys() or remote['controls'] != []
 
     def get_remote(self, name):
         return self.__remotes.get(name)
@@ -37,7 +37,7 @@ class Remotes():
             try:
                 self.__remote_validator(remote)
             except AssertionError:
-                raise Exception(f"Invalid parsing for remote {name}")
+                raise Exception(f"Invalid parsing for remote \"{name}\"")
 
     def __remote_parser(self, yaml_data: dict):
         yaml_remotes = yaml_data.get("remotes")
