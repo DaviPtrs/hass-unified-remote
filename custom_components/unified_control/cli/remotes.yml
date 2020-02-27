@@ -1,0 +1,52 @@
+remotes:
+  prime_video:
+    id: "Unified.AmazonPrimeVideo"
+    type: media_video
+  monitor:
+    id: Unified.Monitor
+    type: monitor
+  power:
+    id: Unified.Power
+    type: power
+  netflix:
+    id: Unified.NetflixWeb
+    type: media_video
+    controls:
+      - "window"
+      - "skip_intro"
+types:
+  media:
+    controls:
+      - "volume_down"
+      - "volume_mute"
+      - "volume_up"
+      - "previous"
+      - "next"
+      - "stop"
+      - "play_pause"
+  media_video:
+    controls:
+      - "volume_down"
+      - "volume_mute"
+      - "volume_up"
+      - "play_pause"
+      - "launch"
+      - "fullscreen"
+      - "rewind"
+      - "forward"
+  monitor:
+    controls:
+      - "turn_on"
+      - "turn_off"
+      - "standby"
+      - "internal" # Computer only mode
+      - "external" # Projector only mode
+  power:
+    controls:
+      - "logoff"
+      - "lock"
+      - "abort"
+      - "restart"
+      - "shutdown"
+      - "hibernate"
+      - "sleep"
