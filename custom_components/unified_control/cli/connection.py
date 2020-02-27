@@ -6,11 +6,12 @@ import re
 
 class Connection():
     def __init__(self, host="localhost", port="9510"):
-        self.__url = f"http://{host}:{port}/client"
+        self.__url = f"http://{host}:{port}/client/"
         assert self.__validate_url(), AssertionError("Malformed URL!")
         self.__source_guid = ""
         self.__session = Session() # Creating a persistent http session
         self.__headers = self.__set_headers() # Fetching connection id and setting it on headers
+        self.__autenticate()
 
     def __validate_url(self):
         regex = re.compile(
@@ -24,18 +25,30 @@ class Connection():
         return (re.match(regex, self.__url) is not None)
 
     def __set_headers(self):
-        response = self.__session.get(self.__url + '/connect')
+        response = self.__session.get(self.__url + 'connect')
         conn_id = response.json()['id']
         headers = {
             'UR-Connection-ID': conn_id
         }
         self.__source_guid = f"web-{conn_id}"
-        return headers    
+        return headers
+
+    def __autenticate(self):
+        password = str(uuid4())
+        payload = {'Action':0,'Request':0,'Version':10,'Password':password,'Platform':'web','Source':self.__source_guid}
+        response = self.__session.post(self.__url+'request', headers=self.__headers, data=dumps(payload))
+        
+        payload = {
+                    "Capabilities":{"Actions":True,"Sync":True,"Grid":True,"Fast":False,
+                    "Loading":True,"Encryption2":True},"Action":1,"Request":1,"Source":self.__source_guid
+                }
+        response = self.__session.post(self.__url+'request', headers=self.__headers, data=dumps(payload))
 
     # Executing given remote id and action using post method
     def exe_remote(self, remoteID, action):
         payload = {"ID":remoteID,"Action":7,"Request":7,"Run":{"Name":action},"Source":self.__source_guid}
-        response = self.__session.post(self.__url+'/request', headers=self.__headers, data=dumps(payload))
+        response = self.__session.post(self.__url+'request', headers=self.__headers, data=dumps(payload))
+        print()
 
     def get_headers(self):
         return self.__headers
