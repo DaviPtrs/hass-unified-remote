@@ -5,14 +5,17 @@ from uuid import uuid4
 import re
 
 class Connection():
-    def __init__(self, host, port):
-        self.__url = f"http://{host}:{port}/client/"
-        assert self.__validate_url(), AssertionError("Malformed URL!")
+    def __init__(self):
+        self.__url = ""
         self.__source_guid = ""
         self.__session = Session() # Creating a persistent http session
+
+    def connect(self, host, port):
+        self.__url = f"http://{host}:{port}/client/"
+        assert self.__validate_url(), AssertionError("Malformed URL!")
         self.__headers = self.__set_headers() # Fetching connection id and setting it on headers
         self.__autenticate()
-
+        
     def __validate_url(self):
         regex = re.compile(
         r'^(?:http|ftp)s?://' # http:// or https://
@@ -47,7 +50,8 @@ class Connection():
     # Executing given remote id and action using post method
     def exe_remote(self, remoteID, action):
         payload = {"ID":remoteID,"Action":7,"Request":7,"Run":{"Name":action},"Source":self.__source_guid}
-        response = self.__session.post(self.__url+'request', headers=self.__headers, data=dumps(payload))
+        return self.__session.post(self.__url+'request', headers=self.__headers, data=dumps(payload))
+        
 
     def get_headers(self):
         return self.__headers

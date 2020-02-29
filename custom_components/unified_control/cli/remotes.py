@@ -1,4 +1,4 @@
-from yaml_parser import yaml_load
+from custom_components.unified_control.cli.yaml_parser import yaml_load
 
 class Remotes():
     def __init__(self, yaml_path="remotes.yml"):
@@ -13,6 +13,8 @@ class Remotes():
     
     def __type_parser(self, yaml_data: dict):
         types = yaml_data.get("types")
+        if types == None:
+            types = dict()
         return types
 
     def __remote_validator(self, remote: dict):
@@ -22,7 +24,9 @@ class Remotes():
     def get_remote(self, name):
         return self.__remotes.get(name)
 
-    def __append_remote_type(self, remotes: dict):
+    def __append_remote_type(self, remotes):
+        if remotes == None:
+            raise Exception("None remotes was parsed, please check your remotes.yml file!")
         for name, remote in remotes.items():
             if not "controls" in remote.keys():
                 remote['controls'] = list()

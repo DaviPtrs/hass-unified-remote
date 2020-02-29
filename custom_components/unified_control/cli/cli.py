@@ -1,6 +1,6 @@
-from remotes import Remotes
-from connection import Connection
-from args import arg_handler
+from custom_components.unified_control.cli.remotes import Remotes
+from custom_components.unified_control.cli.connection import Connection
+from custom_components.unified_control.cli.args import arg_handler
 from sys import path
 
 if __name__ == "__main__":
@@ -14,6 +14,7 @@ if __name__ == "__main__":
     if not remote_action in remote['controls']:
         raise Exception(f"Action {remote_action} doesn't exists for remote {args.remote_name}")
 
-    conn = Connection(host=args.host, port=args.port)
+    conn = Connection()
+    conn.connect(host=args.host, port=args.port)
     conn.exe_remote(remote_id, remote_action)
     pass
