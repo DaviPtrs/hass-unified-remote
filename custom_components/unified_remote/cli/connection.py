@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+"Handle with connection and requests"
 import re
 from json import dumps
 from uuid import uuid4

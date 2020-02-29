@@ -1,3 +1,4 @@
+"Unified remote integration as a commandline cli"
 from sys import path
 
 from custom_components.unified_remote.cli.args import arg_handler

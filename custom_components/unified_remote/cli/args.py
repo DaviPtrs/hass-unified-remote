@@ -1,3 +1,4 @@
+"Define arguments parsing to be used by cli"
 from argparse import ArgumentParser
 
 

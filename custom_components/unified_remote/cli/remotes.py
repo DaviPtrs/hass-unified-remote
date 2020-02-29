@@ -1,3 +1,4 @@
+"Define and parse remote definitions"
 from custom_components.unified_remote.cli.yaml_parser import yaml_load
 
 
