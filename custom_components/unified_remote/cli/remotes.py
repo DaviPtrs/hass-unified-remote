@@ -1,4 +1,4 @@
-from custom_components.unified_control.cli.yaml_parser import yaml_load
+from custom_components.unified_remote.cli.yaml_parser import yaml_load
 
 class Remotes():
     def __init__(self, yaml_path="remotes.yml"):

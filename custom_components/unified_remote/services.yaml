@@ -1,0 +1,9 @@
+call:
+  description: "Trigger remotes on target host using Unified Remote web client"
+  fields:
+    remote:
+      description: "Remote name defined on remotes.yml file"
+      example: "prime_video"
+    action:
+      description: "An action to perform with this remote"
+      example: "launch"

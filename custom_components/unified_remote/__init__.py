@@ -1,13 +1,13 @@
 """HA Unified Remote Integration"""
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
-from custom_components.unified_control.cli.remotes import Remotes
-from custom_components.unified_control.cli.connection import Connection
+from custom_components.unified_remote.cli.remotes import Remotes
+from custom_components.unified_remote.cli.connection import Connection
 from homeassistant.helpers.event import track_time_interval
 from datetime import timedelta
 from logging import getLogger
 
-DOMAIN = "unified_control"
+DOMAIN = "unified_remote"
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
@@ -22,7 +22,7 @@ DEFAULT_NAME = ""
 
 _LOGGER = getLogger(__name__)
 
-REMOTE_FILE_PATH = "/config/custom_components/unified_control/cli/remotes.yml"
+REMOTE_FILE_PATH = "/config/custom_components/unified_remote/cli/remotes.yml"
 
 try:
     REMOTES = Remotes(REMOTE_FILE_PATH)
@@ -71,7 +71,7 @@ def setup(hass, config):
             else:
                 _LOGGER.warning(f"Action \"{action}\" doesn't exists for remote {remote_name}! Please check your remotes.yml")
                 return None
-        hass.states.set("unified_control.call", state)
+        hass.states.set("unified_remote.call", state)
 
     hass.services.register(DOMAIN, "call", handle_call)
     track_time_interval(hass, keep_alive, timedelta(minutes=2))

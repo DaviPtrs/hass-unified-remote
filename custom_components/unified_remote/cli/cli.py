@@ -1,6 +1,6 @@
-from custom_components.unified_control.cli.remotes import Remotes
-from custom_components.unified_control.cli.connection import Connection
-from custom_components.unified_control.cli.args import arg_handler
+from custom_components.unified_remote.cli.remotes import Remotes
+from custom_components.unified_remote.cli.connection import Connection
+from custom_components.unified_remote.cli.args import arg_handler
 from sys import path
 
 if __name__ == "__main__":
