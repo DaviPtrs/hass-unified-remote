@@ -67,14 +67,11 @@ def setup(hass, config):
             if action in remote['controls']:
                 CONNECTION.exe_remote(remote_id, action)
                 _LOGGER.debug(f"Call -> Remote: \"{remote_name}\"; Remote ID: \"{remote_id}\"; Action: \"{action}\"")
-                state = f"Last called: {remote_name} {action}"
             else:
                 _LOGGER.warning(f"Action \"{action}\" doesn't exists for remote {remote_name}! Please check your remotes.yml")
                 return None
-        hass.states.set("unified_remote.call", state)
 
     hass.services.register(DOMAIN, "call", handle_call)
     track_time_interval(hass, keep_alive, timedelta(minutes=2))
 
-    # Return boolean to indicate that initialization was successfully.
     return True
