@@ -9,14 +9,17 @@ from logging import getLogger
 
 DOMAIN = "unified_remote"
 
-CONFIG_SCHEMA = vol.Schema({
-    DOMAIN: vol.Schema({
-        vol.Optional('host', default='localhost'):
-            cv.string,
-        vol.Optional('port', default='9510'):
-            cv.string,
-    })
-}, extra=vol.ALLOW_EXTRA)
+CONFIG_SCHEMA = vol.Schema(
+    {
+        DOMAIN: vol.Schema(
+            {
+                vol.Optional("host", default="localhost"): cv.string,
+                vol.Optional("port", default="9510"): cv.string,
+            }
+        )
+    },
+    extra=vol.ALLOW_EXTRA,
+)
 
 DEFAULT_NAME = ""
 
@@ -36,23 +39,25 @@ except Exception as error:
 
 CONNECTION = Connection()
 
+
 def setup(hass, config):
     """Set up is called when Home Assistant is loading our component."""
-    host = config[DOMAIN].get('host')
-    port = config[DOMAIN].get('port')
+    host = config[DOMAIN].get("host")
+    port = config[DOMAIN].get("port")
     try:
         CONNECTION.connect(host=host, port=port)
         _LOGGER.info(f"Connection to {CONNECTION.get_url()} established")
     except AssertionError as url_error:
         _LOGGER.error(str(url_error))
-    
 
     def keep_alive(call):
         """Keep host listening our requests"""
         response = CONNECTION.exe_remote("", "")
         _LOGGER.debug("Keep alive packet sent")
         if response.status_code != 200:
-            _LOGGER.error(f"Keep alive packet was failed. Status code: {response.status_code}")
+            _LOGGER.error(
+                f"Keep alive packet was failed. Status code: {response.status_code}"
+            )
 
     def handle_call(call):
         """Handle the service call."""
@@ -61,14 +66,20 @@ def setup(hass, config):
         if not (remote_name == "" or action == ""):
             remote = REMOTES.get_remote(remote_name)
             if remote == None:
-                _LOGGER.warning(f"Remote {remote_name} not found! Please check your remotes.yml")
+                _LOGGER.warning(
+                    f"Remote {remote_name} not found! Please check your remotes.yml"
+                )
                 return None
-            remote_id = remote['id']
-            if action in remote['controls']:
+            remote_id = remote["id"]
+            if action in remote["controls"]:
                 CONNECTION.exe_remote(remote_id, action)
-                _LOGGER.debug(f"Call -> Remote: \"{remote_name}\"; Remote ID: \"{remote_id}\"; Action: \"{action}\"")
+                _LOGGER.debug(
+                    f'Call -> Remote: "{remote_name}"; Remote ID: "{remote_id}"; Action: "{action}"'
+                )
             else:
-                _LOGGER.warning(f"Action \"{action}\" doesn't exists for remote {remote_name}! Please check your remotes.yml")
+                _LOGGER.warning(
+                    f'Action "{action}" doesn\'t exists for remote {remote_name}! Please check your remotes.yml'
+                )
                 return None
 
     hass.services.register(DOMAIN, "call", handle_call)
