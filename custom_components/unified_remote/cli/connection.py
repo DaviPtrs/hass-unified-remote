@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-from requests import get, post, Session
 from json import dumps
-from uuid import uuid4
+from requests import get, post, Session
 import re
+from uuid import uuid4
 
 
 class Connection:

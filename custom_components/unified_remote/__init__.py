@@ -1,11 +1,11 @@
 """HA Unified Remote Integration"""
-import voluptuous as vol
-import homeassistant.helpers.config_validation as cv
-from custom_components.unified_remote.cli.remotes import Remotes
 from custom_components.unified_remote.cli.connection import Connection
-from homeassistant.helpers.event import track_time_interval
+from custom_components.unified_remote.cli.remotes import Remotes
 from datetime import timedelta
-from logging import getLogger
+import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.event import track_time_interval
+import logging as log
+import voluptuous as vol
 
 DOMAIN = "unified_remote"
 
@@ -23,7 +23,7 @@ CONFIG_SCHEMA = vol.Schema(
 
 DEFAULT_NAME = ""
 
-_LOGGER = getLogger(__name__)
+_LOGGER = log.getLogger(__name__)
 
 REMOTE_FILE_PATH = "/config/custom_components/unified_remote/cli/remotes.yml"
 
@@ -38,7 +38,6 @@ except Exception as error:
     _LOGGER.error(str(error))
 
 CONNECTION = Connection()
-
 
 def setup(hass, config):
     """Set up is called when Home Assistant is loading our component."""
