@@ -1,4 +1,4 @@
-from yaml import load, dump, FullLoader
+from yaml import FullLoader, dump, load
 
 
 def yaml_load(path: str):

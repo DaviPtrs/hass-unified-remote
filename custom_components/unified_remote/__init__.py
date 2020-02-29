@@ -1,11 +1,13 @@
 """HA Unified Remote Integration"""
+import logging as log
+from datetime import timedelta
+
+import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
+from homeassistant.helpers.event import track_time_interval
+
 from custom_components.unified_remote.cli.connection import Connection
 from custom_components.unified_remote.cli.remotes import Remotes
-from datetime import timedelta
-import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.event import track_time_interval
-import logging as log
-import voluptuous as vol
 
 DOMAIN = "unified_remote"
 
@@ -29,7 +31,7 @@ REMOTE_FILE_PATH = "/config/custom_components/unified_remote/cli/remotes.yml"
 
 try:
     REMOTES = Remotes(REMOTE_FILE_PATH)
-    _LOGGER.info("Remotes loaded sucessful!")
+    _LOGGER.info("Remotes loaded sucessful")
 except FileNotFoundError:
     _LOGGER.error(f"Remotes file not found. Path:{REMOTE_FILE_PATH}")
 except AssertionError as remote_error:
@@ -66,7 +68,7 @@ def setup(hass, config):
             remote = REMOTES.get_remote(remote_name)
             if remote == None:
                 _LOGGER.warning(
-                    f"Remote {remote_name} not found! Please check your remotes.yml"
+                    f"Remote {remote_name} not found Please check your remotes.yml"
                 )
                 return None
             remote_id = remote["id"]
@@ -77,7 +79,7 @@ def setup(hass, config):
                 )
             else:
                 _LOGGER.warning(
-                    f'Action "{action}" doesn\'t exists for remote {remote_name}! Please check your remotes.yml'
+                    f'Action "{action}" doesn\'t exists for remote {remote_name} Please check your remotes.yml'
                 )
                 return None
 

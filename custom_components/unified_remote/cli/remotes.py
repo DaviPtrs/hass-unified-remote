@@ -28,7 +28,7 @@ class Remotes:
     def __append_remote_type(self, remotes):
         if remotes == None:
             raise Exception(
-                "None remotes was parsed, please check your remotes.yml file!"
+                "None remotes was parsed, please check your remotes.yml file"
             )
         for name, remote in remotes.items():
             if not "controls" in remote.keys():

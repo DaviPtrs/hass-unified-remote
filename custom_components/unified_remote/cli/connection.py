@@ -1,8 +1,9 @@
 #!/usr/bin/python3
-from json import dumps
-from requests import get, post, Session
 import re
+from json import dumps
 from uuid import uuid4
+
+from requests import Session, get, post
 
 
 class Connection:
@@ -13,7 +14,7 @@ class Connection:
 
     def connect(self, host, port):
         self.__url = f"http://{host}:{port}/client/"
-        assert self.__validate_url(), AssertionError("Malformed URL!")
+        assert self.__validate_url(), AssertionError("Malformed URL")
         self.__headers = (
             self.__set_headers()
         )  # Fetching connection id and setting it on headers
