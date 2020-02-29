@@ -50,6 +50,9 @@ def setup(hass, config):
         _LOGGER.info(f"Connection to {CONNECTION.get_url()} established")
     except AssertionError as url_error:
         _LOGGER.error(str(url_error))
+        return False
+    except:
+        return False
 
     def keep_alive(call):
         """Keep host listening our requests"""
