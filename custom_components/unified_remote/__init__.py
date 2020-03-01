@@ -4,6 +4,7 @@ from datetime import timedelta
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
+from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers.event import track_time_interval
 from requests import ConnectionError
 
@@ -16,8 +17,8 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Optional("host", default="localhost"): cv.string,
-                vol.Optional("port", default="9510"): cv.string,
+                vol.Optional(CONF_HOST, default="localhost"): cv.string,
+                vol.Optional(CONF_PORT, default="9510"): cv.string,
             }
         )
     },
@@ -45,8 +46,8 @@ CONNECTION = Connection()
 
 def setup(hass, config):
     """Set up is called when Home Assistant is loading our component."""
-    host = config[DOMAIN].get("host")
-    port = config[DOMAIN].get("port")
+    host = config[DOMAIN].get(CONF_HOST)
+    port = config[DOMAIN].get(CONF_PORT)
     try:
         CONNECTION.connect(host=host, port=port)
         _LOGGER.info(f"Connection to {CONNECTION.get_url()} established")

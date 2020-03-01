@@ -3,19 +3,23 @@ import logging
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-# Import the device class from the component that you want to support
+
 from homeassistant.components.switch import PLATFORM_SCHEMA, SwitchDevice
+from homeassistant.const import (SERVICE_TOGGLE, SERVICE_TURN_OFF, SERVICE_TURN_ON)
 
 # from homeassistant.components.switch import
 
 _LOGGER = logging.getLogger(__name__)
 
-EMPTY_REMOTE = {"action": "", "remote": ""}
+REMOTE_NAME = "remote"
+REMOTE_ACTION = "action"
+
+EMPTY_REMOTE = {REMOTE_ACTION: "", REMOTE_NAME: ""}
 
 REMOTE_CONFIG = vol.Schema(
     {
-        vol.Required("remote", default=""): cv.string,
-        vol.Required("action", default=""): cv.string,
+        vol.Required(REMOTE_NAME, default=""): cv.string,
+        vol.Required(REMOTE_ACTION, default=""): cv.string,
     }
 )
 
@@ -23,9 +27,9 @@ REMOTE_CONFIG = vol.Schema(
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required("name"): cv.string,
-        vol.Required("turn_on", default=EMPTY_REMOTE): REMOTE_CONFIG,
-        vol.Optional("turn_off", default=EMPTY_REMOTE): REMOTE_CONFIG,
-        vol.Optional("toggle", default=EMPTY_REMOTE): REMOTE_CONFIG,
+        vol.Required(SERVICE_TURN_ON, default=EMPTY_REMOTE): REMOTE_CONFIG,
+        vol.Optional(SERVICE_TURN_OFF, default=EMPTY_REMOTE): REMOTE_CONFIG,
+        vol.Optional(SERVICE_TOGGLE, default=EMPTY_REMOTE): REMOTE_CONFIG,
     }
 )
 
@@ -36,9 +40,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     # The configuration check takes care they are present.
     name = config["name"]
     remotes = {
-        "turn_on": config.get("turn_on"),
-        "turn_off": config.get("turn_off"),
-        "toggle": config.get("toggle"),
+        SERVICE_TURN_ON: config.get(SERVICE_TURN_ON),
+        SERVICE_TURN_OFF: config.get(SERVICE_TURN_OFF),
+        SERVICE_TOGGLE: config.get(SERVICE_TOGGLE),
     }
 
     # Add devices
@@ -55,21 +59,21 @@ class UnifiedSwitch(SwitchDevice):
 
     def turn_on(self) -> None:
         """Turn the entity on."""
-        remote = self._remotes.get("turn_on")
+        remote = self._remotes.get(SERVICE_TURN_ON)
         if remote != EMPTY_REMOTE:
             self.call(domain="unified_remote", service="call", service_data=remote)
             self._state = True
 
     def turn_off(self):
         """Turn the entity off."""
-        remote = self._remotes.get("turn_off")
+        remote = self._remotes.get(SERVICE_TURN_OFF)
         if remote != EMPTY_REMOTE:
             self.call(domain="unified_remote", service="call", service_data=remote)
             self._state = False
 
     def toggle(self):
         """Toggle the entity."""
-        remote = self._remotes.get("toggle")
+        remote = self._remotes.get(SERVICE_TOGGLE)
         if remote != EMPTY_REMOTE:
             self.call(domain="unified_remote", service="call", service_data=remote)
             self._state = not self._state
