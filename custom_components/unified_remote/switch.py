@@ -1,17 +1,16 @@
 """Platform for light integration."""
 import logging
 
-import voluptuous as vol
-
 import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 # Import the device class from the component that you want to support
-from homeassistant.components.switch import (
-    SwitchDevice, PLATFORM_SCHEMA)
-# from homeassistant.components.switch import 
+from homeassistant.components.switch import PLATFORM_SCHEMA, SwitchDevice
+
+# from homeassistant.components.switch import
 
 _LOGGER = logging.getLogger(__name__)
 
-EMPTY_REMOTE = {"action": "","remote": ""}
+EMPTY_REMOTE = {"action": "", "remote": ""}
 
 REMOTE_CONFIG = vol.Schema(
     {
@@ -21,12 +20,15 @@ REMOTE_CONFIG = vol.Schema(
 )
 
 # Validation of the user's configuration
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required("name"): cv.string,
-    vol.Required("turn_on", default=EMPTY_REMOTE): REMOTE_CONFIG,
-    vol.Optional("turn_off", default=EMPTY_REMOTE): REMOTE_CONFIG,
-    vol.Optional("toggle", default=EMPTY_REMOTE): REMOTE_CONFIG,
-})
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Required("name"): cv.string,
+        vol.Required("turn_on", default=EMPTY_REMOTE): REMOTE_CONFIG,
+        vol.Optional("turn_off", default=EMPTY_REMOTE): REMOTE_CONFIG,
+        vol.Optional("toggle", default=EMPTY_REMOTE): REMOTE_CONFIG,
+    }
+)
+
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Awesome Light platform."""
@@ -36,11 +38,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     remotes = {
         "turn_on": config.get("turn_on"),
         "turn_off": config.get("turn_off"),
-        "toggle": config.get("toggle")
+        "toggle": config.get("toggle"),
     }
 
     # Add devices
     add_entities([UnifiedSwitch(hass, name, remotes)])
+
 
 class UnifiedSwitch(SwitchDevice):
     def __init__(self, hass, name, remotes):
