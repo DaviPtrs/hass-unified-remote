@@ -20,6 +20,11 @@ class Connection:
         )  # Fetching connection id and setting it on headers
         self.__autenticate()
 
+    def reconnect(self, host, port):
+        self.__session = Session()
+        self.__source_guid = ""
+        self.connect(host, port)
+
     def __validate_url(self):
         regex = re.compile(
             r"^(?:http|ftp)s?://"  # http:// or https://

@@ -68,7 +68,7 @@ def setup(hass, config):
         except ConnectionError:
             try:
                 _LOGGER.debug(f"Trying to reconnect with {host}")
-                CONNECTION.connect(host=host, port=port)
+                CONNECTION.reconnect(host=host, port=port)
             except:
                 pass
 
