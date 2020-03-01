@@ -61,6 +61,9 @@ def setup(hass, config):
         try:
             response = CONNECTION.exe_remote("", "")
             _LOGGER.debug("Keep alive packet sent")
+            _LOGGER.debug(f"Keep alive packet response: {str(response.content)}")
+            if "Not a valid connection" in str(response.content):
+                raise ConnectionError()
             if response.status_code != 200:
                 _LOGGER.error(
                     f"Keep alive packet was failed. Status code: {response.status_code}"
@@ -68,7 +71,7 @@ def setup(hass, config):
         except ConnectionError:
             try:
                 _LOGGER.debug(f"Trying to reconnect with {host}")
-                CONNECTION.reconnect(host=host, port=port)
+                CONNECTION.connect(host=host, port=port)
             except:
                 pass
 
@@ -99,6 +102,6 @@ def setup(hass, config):
                 return None
 
     hass.services.register(DOMAIN, "call", handle_call)
-    track_time_interval(hass, keep_alive, timedelta(minutes=1))
+    track_time_interval(hass, keep_alive, timedelta(minutes=2))
 
     return True

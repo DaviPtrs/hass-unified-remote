@@ -18,12 +18,11 @@ class Connection:
         self.__headers = (
             self.__set_headers()
         )  # Fetching connection id and setting it on headers
+        self.__gen_guid()
         self.__autenticate()
 
-    def reconnect(self, host, port):
-        self.__session = Session()
-        self.__source_guid = ""
-        self.connect(host, port)
+    def __gen_guid(self):
+        self.__source_guid = f"web-{uuid4()}"
 
     def __validate_url(self):
         regex = re.compile(
@@ -42,7 +41,6 @@ class Connection:
         response = self.__session.get(self.__url + "connect")
         conn_id = response.json()["id"]
         headers = {"UR-Connection-ID": conn_id}
-        self.__source_guid = f"web-{conn_id}"
         return headers
 
     def __autenticate(self):
