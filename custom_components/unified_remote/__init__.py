@@ -5,6 +5,7 @@ from datetime import timedelta
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.helpers.event import track_time_interval
+from requests import ConnectionError
 
 from custom_components.unified_remote.cli.connection import Connection
 from custom_components.unified_remote.cli.remotes import Remotes
@@ -41,6 +42,7 @@ except Exception as error:
 
 CONNECTION = Connection()
 
+
 def setup(hass, config):
     """Set up is called when Home Assistant is loading our component."""
     host = config[DOMAIN].get("host")
@@ -56,12 +58,19 @@ def setup(hass, config):
 
     def keep_alive(call):
         """Keep host listening our requests"""
-        response = CONNECTION.exe_remote("", "")
-        _LOGGER.debug("Keep alive packet sent")
-        if response.status_code != 200:
-            _LOGGER.error(
-                f"Keep alive packet was failed. Status code: {response.status_code}"
-            )
+        try:
+            response = CONNECTION.exe_remote("", "")
+            _LOGGER.debug("Keep alive packet sent")
+            if response.status_code != 200:
+                _LOGGER.error(
+                    f"Keep alive packet was failed. Status code: {response.status_code}"
+                )
+        except ConnectionError:
+            try:
+                _LOGGER.debug(f"Trying to reconnect with {host}")
+                CONNECTION.connect(host=host, port=port)
+            except:
+                pass
 
     def handle_call(call):
         """Handle the service call."""
@@ -76,10 +85,13 @@ def setup(hass, config):
                 return None
             remote_id = remote["id"]
             if action in remote["controls"]:
-                CONNECTION.exe_remote(remote_id, action)
-                _LOGGER.debug(
-                    f'Call -> Remote: "{remote_name}"; Remote ID: "{remote_id}"; Action: "{action}"'
-                )
+                try:
+                    CONNECTION.exe_remote(remote_id, action)
+                    _LOGGER.debug(
+                        f'Call -> Remote: "{remote_name}"; Remote ID: "{remote_id}"; Action: "{action}"'
+                    )
+                except ConnectionError as error:
+                    _LOGGER.warning("Unable to call remote. Host is off")
             else:
                 _LOGGER.warning(
                     f'Action "{action}" doesn\'t exists for remote {remote_name} Please check your remotes.yml'
@@ -87,6 +99,6 @@ def setup(hass, config):
                 return None
 
     hass.services.register(DOMAIN, "call", handle_call)
-    track_time_interval(hass, keep_alive, timedelta(minutes=2))
+    track_time_interval(hass, keep_alive, timedelta(minutes=1))
 
     return True
