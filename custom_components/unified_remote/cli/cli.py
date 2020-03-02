@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # Check if remote exists
     if remote is None:
         raise Exception(
-            f"Remote \"{args.remote_name}\" doesn't exists. Check your remotes.yml file."
+            f'Remote "{args.remote_name}" doesn\'t exists. Check your remotes.yml file.'
         )
     # Get remote id
     remote_id = remote["id"]

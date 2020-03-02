@@ -3,9 +3,9 @@ import logging
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-
 from homeassistant.components.switch import PLATFORM_SCHEMA, SwitchDevice
-from homeassistant.const import (SERVICE_TOGGLE, SERVICE_TURN_OFF, SERVICE_TURN_ON)
+from homeassistant.const import (SERVICE_TOGGLE, SERVICE_TURN_OFF,
+                                 SERVICE_TURN_ON)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Unified Remote switch platform."""
-    
+
     # Set config entries to be parsed to switch entity.
     name = config["name"]
     remotes = {
@@ -53,6 +53,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 class UnifiedSwitch(SwitchDevice):
     "A switch that can calls remotes of Unified Remote client."
     "It uses unified_remote.call service to do the job."
+
     def __init__(self, hass, name, remotes):
         self._switch_name = name
         self._remotes = remotes

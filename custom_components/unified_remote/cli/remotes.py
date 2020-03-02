@@ -67,7 +67,7 @@ class Remotes:
 
     def __remote_parser(self, yaml_data: dict):
         """Fetch declared remotes then parse all the data to properly remote structure."""
-        
+
         yaml_remotes = yaml_data.get("remotes")
         self.__append_remote_type(yaml_remotes)
         return yaml_remotes

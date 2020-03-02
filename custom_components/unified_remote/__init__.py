@@ -2,14 +2,14 @@
 import logging as log
 from datetime import timedelta
 
-import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
-from homeassistant.const import CONF_HOST, CONF_PORT
-from homeassistant.helpers.event import track_time_interval
 from requests import ConnectionError
 
+import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 from custom_components.unified_remote.cli.connection import Connection
 from custom_components.unified_remote.cli.remotes import Remotes
+from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.helpers.event import track_time_interval
 
 DOMAIN = "unified_remote"
 
@@ -67,9 +67,7 @@ def setup(hass, config):
         try:
             response = CONNECTION.exe_remote("", "")
             _LOGGER.debug("Keep alive packet sent")
-            _LOGGER.debug(
-                    f"Keep alive packet response: {str(response.content)}"
-                )
+            _LOGGER.debug(f"Keep alive packet response: {str(response.content)}")
 
             if "Not a valid connection" in str(response.content):
                 raise ConnectionError()
