@@ -1,4 +1,4 @@
-"""Platform for light integration."""
+"""Unified Remote switch platform"""
 import logging
 
 import homeassistant.helpers.config_validation as cv
