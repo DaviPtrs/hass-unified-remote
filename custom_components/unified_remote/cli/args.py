@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 
 
 def arg_handler():
+    "Handle with cli argument parsing."
     # Tool information
     parser = ArgumentParser()
 
