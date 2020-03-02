@@ -3,19 +3,20 @@ import logging
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-
 from homeassistant.components.switch import PLATFORM_SCHEMA, SwitchDevice
-from homeassistant.const import (SERVICE_TOGGLE, SERVICE_TURN_OFF, SERVICE_TURN_ON)
-
-# from homeassistant.components.switch import
+from homeassistant.const import (SERVICE_TOGGLE, SERVICE_TURN_OFF,
+                                 SERVICE_TURN_ON)
 
 _LOGGER = logging.getLogger(__name__)
 
+# Additional consts declarations
 REMOTE_NAME = "remote"
 REMOTE_ACTION = "action"
 
+# Remote structure definition.
 EMPTY_REMOTE = {REMOTE_ACTION: "", REMOTE_NAME: ""}
 
+# Remote config entry definition.
 REMOTE_CONFIG = vol.Schema(
     {
         vol.Required(REMOTE_NAME, default=""): cv.string,
@@ -23,7 +24,7 @@ REMOTE_CONFIG = vol.Schema(
     }
 )
 
-# Validation of the user's configuration
+# Validation of the user's configuration.
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required("name"): cv.string,
@@ -35,9 +36,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the Awesome Light platform."""
-    # Assign configuration variables.
-    # The configuration check takes care they are present.
+    """Set up the Unified Remote switch platform."""
+
+    # Set config entries to be parsed to switch entity.
     name = config["name"]
     remotes = {
         SERVICE_TURN_ON: config.get(SERVICE_TURN_ON),
@@ -45,11 +46,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         SERVICE_TOGGLE: config.get(SERVICE_TOGGLE),
     }
 
-    # Add devices
+    # Add devices.
     add_entities([UnifiedSwitch(hass, name, remotes)])
 
 
 class UnifiedSwitch(SwitchDevice):
+    "A switch that can calls remotes of Unified Remote client."
+    "It uses unified_remote.call service to do the job."
+
     def __init__(self, hass, name, remotes):
         self._switch_name = name
         self._remotes = remotes
@@ -80,7 +84,6 @@ class UnifiedSwitch(SwitchDevice):
 
     @property
     def name(self):
-        """Return the name of the sensor."""
         return self._switch_name
 
     @property
