@@ -7,7 +7,7 @@ class Remotes:
         yaml_data = yaml_load(yaml_path)
         self.__types = None
         self.__remotes = None
-        if yaml_data == None:
+        if yaml_data is None:
             raise FileNotFoundError()
         else:
             self.__types = self.__type_parser(yaml_data)
@@ -15,7 +15,7 @@ class Remotes:
 
     def __type_parser(self, yaml_data: dict):
         types = yaml_data.get("types")
-        if types == None:
+        if types is None:
             types = dict()
         return types
 
@@ -27,19 +27,19 @@ class Remotes:
         return self.__remotes.get(name)
 
     def __append_remote_type(self, remotes):
-        if remotes == None:
+        if remotes is None:
             raise Exception(
                 "None remotes was parsed, please check your remotes.yml file"
             )
         for name, remote in remotes.items():
-            if not "controls" in remote.keys():
+            if "controls" not in remote.keys():
                 remote["controls"] = list()
             remote_type = remote.get("type")
-            if remote_type != None:
+            if remote_type is not None:
                 type_params = self.__types.get(remote_type)
-                if type_params != None:
+                if type_params is not None:
                     type_controls = type_params.get("controls")
-                    if type_controls != None:
+                    if type_controls is not None:
                         for control in type_controls:
                             remote["controls"].append(control)
             try:

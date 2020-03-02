@@ -3,7 +3,7 @@ import re
 from json import dumps
 from uuid import uuid4
 
-from requests import Session, get, post
+from requests import Session
 
 
 class Connection:
@@ -53,7 +53,7 @@ class Connection:
             "Platform": "web",
             "Source": self.__source_guid,
         }
-        response = self.__session.post(
+        self.__session.post(
             self.__url + "request", headers=self.__headers, data=dumps(payload)
         )
 
@@ -70,7 +70,7 @@ class Connection:
             "Request": 1,
             "Source": self.__source_guid,
         }
-        response = self.__session.post(
+        self.__session.post(
             self.__url + "request", headers=self.__headers, data=dumps(payload)
         )
 

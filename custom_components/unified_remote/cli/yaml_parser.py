@@ -1,5 +1,5 @@
 "Load yaml files"
-from yaml import FullLoader, dump, load
+from yaml import FullLoader, load
 
 
 def yaml_load(path: str):

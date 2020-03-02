@@ -54,7 +54,7 @@ def setup(hass, config):
     except AssertionError as url_error:
         _LOGGER.error(str(url_error))
         return False
-    except:
+    except Exception:
         return False
 
     def keep_alive(call):
@@ -62,7 +62,9 @@ def setup(hass, config):
         try:
             response = CONNECTION.exe_remote("", "")
             _LOGGER.debug("Keep alive packet sent")
-            _LOGGER.debug(f"Keep alive packet response: {str(response.content)}")
+            _LOGGER.debug(
+                    f"Keep alive packet response: {str(response.content)}"
+                )
             if "Not a valid connection" in str(response.content):
                 raise ConnectionError()
             if response.status_code != 200:
@@ -73,7 +75,7 @@ def setup(hass, config):
             try:
                 _LOGGER.debug(f"Trying to reconnect with {host}")
                 CONNECTION.connect(host=host, port=port)
-            except:
+            except Exception:
                 pass
 
     def handle_call(call):
@@ -82,7 +84,7 @@ def setup(hass, config):
         action = call.data.get("action", DEFAULT_NAME)
         if not (remote_name == "" or action == ""):
             remote = REMOTES.get_remote(remote_name)
-            if remote == None:
+            if remote is None:
                 _LOGGER.warning(
                     f"Remote {remote_name} not found Please check your remotes.yml"
                 )
@@ -94,7 +96,7 @@ def setup(hass, config):
                     _LOGGER.debug(
                         f'Call -> Remote: "{remote_name}"; Remote ID: "{remote_id}"; Action: "{action}"'
                     )
-                except ConnectionError as error:
+                except ConnectionError:
                     _LOGGER.warning("Unable to call remote. Host is off")
             else:
                 _LOGGER.warning(
