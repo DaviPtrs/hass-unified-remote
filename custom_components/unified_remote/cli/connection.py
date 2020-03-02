@@ -16,7 +16,7 @@ class Connection:
         self.__session = Session()
 
     def connect(self, host, port):
-        "Stablish connection with host client."
+        "Establish connection with host client."
 
         self.__url = f"http://{host}:{port}/client/"
         assert self.__validate_url(), AssertionError("Malformed URL")
