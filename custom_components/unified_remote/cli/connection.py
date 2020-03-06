@@ -12,6 +12,7 @@ class Connection:
     def __init__(self):
         self.__url = ""
         self.__source_guid = ""
+        self.__headers = ""
         # Creating a persistent http session
         self.__session = Session()
 
