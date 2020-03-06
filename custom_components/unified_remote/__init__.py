@@ -21,7 +21,7 @@ CONFIG_SCHEMA = vol.Schema(
             {
                 vol.Optional(CONF_HOST, default="localhost"): cv.string,
                 vol.Optional(CONF_PORT, default="9510"): cv.string,
-                vol.Optional(CONF_RETRY,default="120"): cv.string
+                vol.Optional(CONF_RETRY,default=120): int
             }
         )
     },
@@ -53,7 +53,7 @@ def setup(hass, config):
     # Fetching configuration entries.
     host = config[DOMAIN].get(CONF_HOST)
     port = config[DOMAIN].get(CONF_PORT)
-    retry_delay = int(config[DOMAIN].get(CONF_RETRY))
+    retry_delay = config[DOMAIN].get(CONF_RETRY)
     if retry_delay > 120:
         retry_delay = 120
 
