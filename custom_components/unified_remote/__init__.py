@@ -59,7 +59,10 @@ def setup(hass, config):
     except AssertionError as url_error:
         _LOGGER.error(str(url_error))
         return False
-    except Exception:
+    except ConnectionError:
+        _LOGGER.warning("At the first moment host seems down, but the connection will be retried.")
+    except Exception as e:
+        _LOGGER.error(str(e))
         return False
 
     def keep_alive(call):
