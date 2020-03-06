@@ -13,12 +13,15 @@ from homeassistant.helpers.event import track_time_interval
 
 DOMAIN = "unified_remote"
 
+CONF_RETRY = "retry_delay"
+
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
                 vol.Optional(CONF_HOST, default="localhost"): cv.string,
                 vol.Optional(CONF_PORT, default="9510"): cv.string,
+                vol.Optional(CONF_RETRY,default="120"): cv.string
             }
         )
     },
@@ -50,6 +53,9 @@ def setup(hass, config):
     # Fetching configuration entries.
     host = config[DOMAIN].get(CONF_HOST)
     port = config[DOMAIN].get(CONF_PORT)
+    retry_delay = int(config[DOMAIN].get(CONF_RETRY))
+    if retry_delay > 120:
+        retry_delay = 120
 
     try:
         # Establishing connection with host client.
@@ -123,8 +129,10 @@ def setup(hass, config):
 
     # Register remote call service.
     hass.services.register(DOMAIN, "call", handle_call)
-    # Set "keep_alive()" function to be called every 2 minutes.
-    # 2 minutes are the max interval to keep connection alive.
-    track_time_interval(hass, keep_alive, timedelta(minutes=2))
+    # Set "keep_alive()" function to be called every 2 minutes (120 seconds).
+    # 2 minutes (120 seconds) are the max interval to keep connection alive.
+    # So you can just decrease this delay, otherwise, the connection will not
+    # be persistent.
+    track_time_interval(hass, keep_alive, timedelta(seconds=retry_delay))
 
     return True
