@@ -172,6 +172,8 @@ To find these required information about some remote:
 
 - Scroll down on headers section until you find a "Form data" sub-section, here we got a JSON, and in `Name`, there's a string. That was our desired action name.
 
+![post-data](images/13.png)
+
 So we finaly got all required information to use Spotify Remote to play/pause our songs:
 ```
 remote_id: Unified.Spotify
