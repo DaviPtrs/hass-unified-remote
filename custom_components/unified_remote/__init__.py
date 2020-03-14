@@ -21,7 +21,7 @@ CONFIG_SCHEMA = vol.Schema(
             {
                 vol.Required(CONF_HOST, default="localhost"): cv.string,
                 vol.Optional(CONF_PORT, default="9510"): cv.string,
-                vol.Optional(CONF_RETRY,default="120"): cv.string
+                vol.Optional(CONF_RETRY, default=120): int,
             }
         )
     },
@@ -53,7 +53,7 @@ def setup(hass, config):
     # Fetching configuration entries.
     host = config[DOMAIN].get(CONF_HOST)
     port = config[DOMAIN].get(CONF_PORT)
-    retry_delay = int(config[DOMAIN].get(CONF_RETRY))
+    retry_delay = config[DOMAIN].get(CONF_RETRY)
     if retry_delay > 120:
         retry_delay = 120
 
@@ -66,7 +66,9 @@ def setup(hass, config):
         _LOGGER.error(str(url_error))
         return False
     except ConnectionError:
-        _LOGGER.warning("At the first moment host seems down, but the connection will be retried.")
+        _LOGGER.warning(
+            "At the first moment host seems down, but the connection will be retried."
+        )
     except Exception as e:
         _LOGGER.error(str(e))
         return False
@@ -78,7 +80,9 @@ def setup(hass, config):
             _LOGGER.debug("Keep alive packet sent")
             _LOGGER.debug(f"Keep alive packet response: {str(response.content)}")
 
-            if "Not a valid connection" in str(response.content):
+            if "Not a valid connection" in str(response.content) or "No UR" in str(
+                response.content
+            ):
                 raise ConnectionError()
 
             if response.status_code != 200:
@@ -90,7 +94,12 @@ def setup(hass, config):
             try:
                 _LOGGER.debug(f"Trying to reconnect with {host}")
                 CONNECTION.connect(host=host, port=port)
-            except Exception:
+                _LOGGER.info(f"Connection to http://{host}:{port}/client/ established")
+            except Exception as error:
+                _LOGGER.debug(
+                    f"Unable to connect with {host}. Headers: {CONNECTION.get_headers()}"
+                )
+                _LOGGER.debug(f"Error: {error}")
                 pass
 
     def handle_call(call):
