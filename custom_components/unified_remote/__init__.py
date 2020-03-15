@@ -2,14 +2,14 @@
 import logging as log
 from datetime import timedelta
 
-from requests import ConnectionError
-
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from custom_components.unified_remote.cli.connection import Connection
-from custom_components.unified_remote.cli.remotes import Remotes
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers.event import track_time_interval
+from requests import ConnectionError
+
+from custom_components.unified_remote.cli.connection import Connection
+from custom_components.unified_remote.cli.remotes import Remotes
 
 DOMAIN = "unified_remote"
 
@@ -48,6 +48,32 @@ except Exception as error:
 CONNECTION = Connection()
 
 
+def connect(host, port):
+    """Handle with connect function and logs if was successful"""
+    CONNECTION.connect(host, port)
+    _LOGGER.info(f"Connection to {CONNECTION.get_url()} established")
+
+
+def validate_response(response):
+    """Validate keep alive packet to check if reconnection is needed"""
+    out = response.content.decode("ascii")
+    status = response.status_code
+    flag = 0
+    if status != 200:
+        _LOGGER.error(
+            f"Keep alive packet was failed. Status code: {status}. Response: {out}"
+        )
+        flag = 1
+    else:
+        errors = ["Not a valid connection", "No UR"]
+        for error in errors:
+            if error in out:
+                flag = 1
+                break
+    if flag == 1:
+        raise ConnectionError()
+
+
 def setup(hass, config):
     """Setting up Unified Remote Integration"""
     # Fetching configuration entries.
@@ -59,8 +85,7 @@ def setup(hass, config):
 
     try:
         # Establishing connection with host client.
-        CONNECTION.connect(host=host, port=port)
-        _LOGGER.info(f"Connection to {CONNECTION.get_url()} established")
+        connect(host, port)
     # Handling with malformed url error.
     except AssertionError as url_error:
         _LOGGER.error(str(url_error))
@@ -78,23 +103,15 @@ def setup(hass, config):
         try:
             response = CONNECTION.exe_remote("", "")
             _LOGGER.debug("Keep alive packet sent")
-            _LOGGER.debug(f"Keep alive packet response: {str(response.content)}")
-
-            if "Not a valid connection" in str(response.content) or "No UR" in str(
-                response.content
-            ):
-                raise ConnectionError()
-
-            if response.status_code != 200:
-                _LOGGER.error(
-                    f"Keep alive packet was failed. Status code: {response.status_code}"
-                )
+            _LOGGER.debug(
+                f"Keep alive packet response: {response.content.decode('ascii')}"
+            )
+            validate_response(response)
         # If there's an connection error, try to reconnect.
         except ConnectionError:
             try:
                 _LOGGER.debug(f"Trying to reconnect with {host}")
-                CONNECTION.connect(host=host, port=port)
-                _LOGGER.info(f"Connection to http://{host}:{port}/client/ established")
+                connect(host, port)
             except Exception as error:
                 _LOGGER.debug(
                     f"Unable to connect with {host}. Headers: {CONNECTION.get_headers()}"
@@ -134,7 +151,6 @@ def setup(hass, config):
                 _LOGGER.warning(
                     f'Action "{action}" doesn\'t exists for remote {remote_name} Please check your remotes.yml'
                 )
-                return None
 
     # Register remote call service.
     hass.services.register(DOMAIN, "call", handle_call)
