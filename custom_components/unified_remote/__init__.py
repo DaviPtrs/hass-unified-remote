@@ -56,7 +56,7 @@ def connect(host, port):
 
 def validate_response(response):
     """Validate keep alive packet to check if reconnection is needed"""
-    out = str(response.content).decode("ascii")
+    out = response.content.decode("ascii")
     status = response.status_code
     flag = 0
     if status != 200:
@@ -104,7 +104,7 @@ def setup(hass, config):
             response = CONNECTION.exe_remote("", "")
             _LOGGER.debug("Keep alive packet sent")
             _LOGGER.debug(
-                f"Keep alive packet response: {str(response.content).decode('ascii')}"
+                f"Keep alive packet response: {response.content.decode('ascii')}"
             )
             validate_response(response)
         # If there's an connection error, try to reconnect.
