@@ -406,12 +406,26 @@ remote: remote_name (NOT THE REMOTE ID)
 action: remote_action
 ```
 
+- You also can call remote that was not declared on devices.yml, like that:
+  
+```yaml
+remote_id: remote_id
+action: remote_action
+```
+
 For example:
 
 This call will open Amazon Prime Video on my default browser.
 
 ```yaml
 remote: prime_video
+action: launch
+```
+
+That will do the same, but without declare it first.
+
+```yaml
+remote_id: Unified.AmazonPrimeVideo
 action: launch
 ```
 

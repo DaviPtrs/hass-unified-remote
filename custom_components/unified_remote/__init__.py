@@ -2,14 +2,14 @@
 import logging as log
 from datetime import timedelta
 
-import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
-from homeassistant.const import CONF_HOST, CONF_PORT
-from homeassistant.helpers.event import track_time_interval
 from requests import ConnectionError
 
+import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 from custom_components.unified_remote.cli.connection import Connection
 from custom_components.unified_remote.cli.remotes import Remotes
+from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.helpers.event import track_time_interval
 
 DOMAIN = "unified_remote"
 
@@ -74,6 +74,15 @@ def validate_response(response):
         raise ConnectionError()
 
 
+def call_remote(id, action):
+    try:
+        CONNECTION.exe_remote(id, action)
+        _LOGGER.debug(f'Call -> Remote ID: "{id}"; Action: "{action}"')
+    # Log if request fails.
+    except ConnectionError:
+        _LOGGER.warning("Unable to call remote. Host is off")
+
+
 def setup(hass, config):
     """Setting up Unified Remote Integration"""
     # Fetching configuration entries.
@@ -123,7 +132,14 @@ def setup(hass, config):
         """Handle the service call."""
         # Fetch service data.
         remote_name = call.data.get("remote", DEFAULT_NAME)
+        remote_id = call.data.get("remote_id", DEFAULT_NAME)
         action = call.data.get("action", DEFAULT_NAME)
+
+        # Allows user to pass remote id without declaring it on remotes.yml
+        if remote_id is not None:
+            if not (remote_id == "" or action == ""):
+                call_remote(remote_id, action)
+                return None
 
         # Check if none or empty service data was parsed.
         if not (remote_name == "" or action == ""):
@@ -138,14 +154,7 @@ def setup(hass, config):
             remote_id = remote["id"]
             # Check if given action exists in remote control list.
             if action in remote["controls"]:
-                try:
-                    CONNECTION.exe_remote(remote_id, action)
-                    _LOGGER.debug(
-                        f'Call -> Remote: "{remote_name}"; Remote ID: "{remote_id}"; Action: "{action}"'
-                    )
-                # Log if request fails.
-                except ConnectionError:
-                    _LOGGER.warning("Unable to call remote. Host is off")
+                call_remote(remote_id, action)
             else:
                 # Log if called remote doens't exists on remotes.yml.
                 _LOGGER.warning(
