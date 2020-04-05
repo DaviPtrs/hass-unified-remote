@@ -11,15 +11,14 @@ _LOGGER = logging.getLogger(__name__)
 
 # Additional consts declarations
 REMOTE_NAME = "remote"
+REMOTE_ID = "remote_id"
 REMOTE_ACTION = "action"
-
-# Remote structure definition.
-EMPTY_REMOTE = {REMOTE_ACTION: "", REMOTE_NAME: ""}
 
 # Remote config entry definition.
 REMOTE_CONFIG = vol.Schema(
     {
         vol.Required(REMOTE_NAME, default=""): cv.string,
+        vol.Optional(REMOTE_ID): cv.string,
         vol.Required(REMOTE_ACTION, default=""): cv.string,
     }
 )
@@ -28,9 +27,9 @@ REMOTE_CONFIG = vol.Schema(
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required("name"): cv.string,
-        vol.Required(SERVICE_TURN_ON, default=EMPTY_REMOTE): REMOTE_CONFIG,
-        vol.Optional(SERVICE_TURN_OFF, default=EMPTY_REMOTE): REMOTE_CONFIG,
-        vol.Optional(SERVICE_TOGGLE, default=EMPTY_REMOTE): REMOTE_CONFIG,
+        vol.Required(SERVICE_TURN_ON, default=None): REMOTE_CONFIG,
+        vol.Optional(SERVICE_TURN_OFF): REMOTE_CONFIG,
+        vol.Optional(SERVICE_TOGGLE): REMOTE_CONFIG,
     }
 )
 
@@ -64,21 +63,21 @@ class UnifiedSwitch(SwitchDevice):
     def turn_on(self) -> None:
         """Turn the entity on."""
         remote = self._remotes.get(SERVICE_TURN_ON)
-        if remote != EMPTY_REMOTE:
+        if remote is not None:
             self.call(domain="unified_remote", service="call", service_data=remote)
             self._state = True
 
     def turn_off(self):
         """Turn the entity off."""
         remote = self._remotes.get(SERVICE_TURN_OFF)
-        if remote != EMPTY_REMOTE:
+        if remote is not None:
             self.call(domain="unified_remote", service="call", service_data=remote)
             self._state = False
 
     def toggle(self):
         """Toggle the entity."""
         remote = self._remotes.get(SERVICE_TOGGLE)
-        if remote != EMPTY_REMOTE:
+        if remote is not None:
             self.call(domain="unified_remote", service="call", service_data=remote)
             self._state = not self._state
 

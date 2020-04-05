@@ -399,10 +399,21 @@ This integration actualy register a service, called by `unified_remote.call`
 
 That service allows you to call your remotes.
 
+> Unfortunally Unified Remote doesn't return any type of errors if you call an inexistent remote, so the only way to know if something goes wrong is if you make sure that HASS is connected with Unified Remote client, but nothing happens when you call your remote. 
+
+> If you are sure about remote info but nothing happens, it can be a bug with Unified Remote, in that case, just restart the server of your computer.
+
 - Just call the service with following service_data
 
 ```yaml
 remote: remote_name (NOT THE REMOTE ID)
+action: remote_action
+```
+
+- You also can call remote that was not declared on devices.yml, like that:
+  
+```yaml
+remote_id: remote_id
 action: remote_action
 ```
 
@@ -412,6 +423,13 @@ This call will open Amazon Prime Video on my default browser.
 
 ```yaml
 remote: prime_video
+action: launch
+```
+
+That will do the same, but without declare it first.
+
+```yaml
+remote_id: Unified.AmazonPrimeVideo
 action: launch
 ```
 
