@@ -17,7 +17,8 @@ REMOTE_ACTION = "action"
 # Remote config entry definition.
 REMOTE_CONFIG = vol.Schema(
     {
-        vol.Required(vol.Any(REMOTE_NAME, REMOTE_ID), default=""): cv.string,
+        vol.Required(REMOTE_NAME, default=""): cv.string,
+        vol.Optional(REMOTE_ID): cv.string,
         vol.Required(REMOTE_ACTION, default=""): cv.string,
     }
 )
