@@ -399,6 +399,10 @@ This integration actualy register a service, called by `unified_remote.call`
 
 That service allows you to call your remotes.
 
+> Unfortunally Unified Remote doesn't return any type of errors if you call an inexistent remote, so the only way to know if something goes wrong is if you make sure that HASS is connected with Unified Remote client, but nothing happens when you call your remote. 
+
+> If you are sure about remote info but nothing happens, it can be a bug with Unified Remote, in that case, just restart the server of your computer.
+
 - Just call the service with following service_data
 
 ```yaml
