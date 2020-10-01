@@ -75,6 +75,12 @@ def init_computers(hosts):
             return False
     return True
 
+def find_computer(name):
+    for computer in COMPUTERS:
+        if computer.name == name:
+            return computer
+    return None
+
 def validate_response(response):
     """Validate keep alive packet to check if reconnection is needed"""
     out = response.content.decode("ascii")
@@ -103,33 +109,43 @@ def setup(hass, config):
     if retry_delay > 120:
         retry_delay = 120
 
-    init_computers(hosts)
+    if not init_computers(hosts):
+        return False
 
-    # TODO: PAREI AQUI
     def keep_alive(call):
         """Keep host listening our requests"""
-        try:
-            response = CONNECTION.exe_remote("", "")
-            _LOGGER.debug("Keep alive packet sent")
-            _LOGGER.debug(
-                f"Keep alive packet response: {response.content.decode('ascii')}"
-            )
-            validate_response(response)
-        # If there's an connection error, try to reconnect.
-        except ConnectionError:
+        for computer in COMPUTERS:
             try:
-                _LOGGER.debug(f"Trying to reconnect with {host}")
-                connect(host, port)
-            except Exception as error:
+                response = computer.connection.exe_remote("", "")
+                _LOGGER.debug("Keep alive packet sent")
                 _LOGGER.debug(
-                    f"Unable to connect with {host}. Headers: {CONNECTION.get_headers()}"
+                    f"Keep alive packet response: {response.content.decode('ascii')}"
                 )
-                _LOGGER.debug(f"Error: {error}")
-                pass
+                validate_response(response)
+            # If there's an connection error, try to reconnect.
+            except ConnectionError:
+                try:
+                    _LOGGER.debug(f"Trying to reconnect with {computer.host}")
+                    computer.connect()
+                except Exception as error:
+                    _LOGGER.debug(
+                        f"Unable to connect with {computer.host}. Headers: {computer.connection.get_headers()}"
+                    )
+                    _LOGGER.debug(f"Error: {error}")
+                    pass
 
     def handle_call(call):
         """Handle the service call."""
         # Fetch service data.
+        host_name = remote_name = call.data.get("host_name")
+        if host_name is None or host_name.strip() == '':
+            if len(COMPUTERS) > 1:
+                raise vol.Invalid('You must specify a host')
+            else:
+                computer = COMPUTERS[0]    
+        else:
+            computer = find_computer(host_name)
+
         remote_name = call.data.get("remote", DEFAULT_NAME)
         remote_id = call.data.get("remote_id", DEFAULT_NAME)
         action = call.data.get("action", DEFAULT_NAME)
@@ -137,7 +153,7 @@ def setup(hass, config):
         # Allows user to pass remote id without declaring it on remotes.yml
         if remote_id is not None:
             if not (remote_id == "" or action == ""):
-                call_remote(remote_id, action)
+                computer.call_remote(remote_id, action)
                 return None
 
         # Check if none or empty service data was parsed.
@@ -153,7 +169,7 @@ def setup(hass, config):
             remote_id = remote["id"]
             # Check if given action exists in remote control list.
             if action in remote["controls"]:
-                call_remote(remote_id, action)
+                computer.call_remote(remote_id, action)
             else:
                 # Log if called remote doens't exists on remotes.yml.
                 _LOGGER.warning(

@@ -5,6 +5,11 @@ import logging as log
 _LOGGER = log.getLogger(__name__)
 
 class Computer:
+    def connect(self):
+        """Handle with connect function and logs if was successful"""
+        self.connection.connect(self.host, self.port)
+        _LOGGER.info(f"Connection to {self.name} established")
+
     def __init__(self, name: str, host: str, port: int):
         self.name = name
         self.host = host
@@ -23,17 +28,12 @@ class Computer:
             _LOGGER.error(str(e))
             raise
 
-    def connect(self, host, port):
-        """Handle with connect function and logs if was successful"""
-        self.connection.connect(host, port)
-        _LOGGER.info(f"Connection to {self.name} established")
-
     def call_remote(self, id, action):
         try:
             self.connection.exe_remote(id, action)
             _LOGGER.debug(f'Call -> Remote ID: "{id}"; Action: "{action}"')
         # Log if request fails.
         except ConnectionError:
-            _LOGGER.warning("Unable to call remote. Host is off")
+            _LOGGER.warning(f"Unable to call remote. {self.name} is off")
     
     
