@@ -23,9 +23,15 @@ COMPUTER_SCHEMA = vol.Schema(
                 }
             )
 
+def computer_schema_list(value):
+    if all(isinstance(n, COMPUTER_SCHEMA) for n in value):
+        return value
+    raise vol.Invalid('Not a list of computers')
+
+
 CONFIG_SCHEMA = vol.Schema(
     {
-        DOMAIN: COMPUTER_SCHEMA
+        DOMAIN: vol.Any(COMPUTER_SCHEMA, computer_schema_list)
     },
     extra=vol.ALLOW_EXTRA,
 )
