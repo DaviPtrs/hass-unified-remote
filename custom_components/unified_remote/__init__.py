@@ -15,15 +15,17 @@ DOMAIN = "unified_remote"
 
 CONF_RETRY = "retry_delay"
 
+COMPUTER_SCHEMA = vol.Schema(
+                {
+                    vol.Required(CONF_HOST, default="localhost"): cv.string,
+                    vol.Optional(CONF_PORT, default="9510"): cv.string,
+                    vol.Optional(CONF_RETRY, default=120): int,
+                }
+            )
+
 CONFIG_SCHEMA = vol.Schema(
     {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_HOST, default="localhost"): cv.string,
-                vol.Optional(CONF_PORT, default="9510"): cv.string,
-                vol.Optional(CONF_RETRY, default=120): int,
-            }
-        )
+        DOMAIN: COMPUTER_SCHEMA
     },
     extra=vol.ALLOW_EXTRA,
 )
