@@ -139,9 +139,6 @@ def setup(hass, config):
         # Fetch service data.
         host_name = remote_name = call.data.get("host_name")
         if host_name is None or host_name.strip() == '':
-            if len(COMPUTERS) > 1:
-                raise vol.Invalid('You must specify a host')
-            else:
                 computer = COMPUTERS[0]    
         else:
             computer = find_computer(host_name)
