@@ -8,30 +8,36 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from custom_components.unified_remote.cli.connection import Connection
 from custom_components.unified_remote.cli.remotes import Remotes
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_PORT, CONF_HOSTS, CONF_NAME
 from homeassistant.helpers.event import track_time_interval
+from custom_components.unified_remote.cli.computer import Computer
 
 DOMAIN = "unified_remote"
-
 CONF_RETRY = "retry_delay"
 
 COMPUTER_SCHEMA = vol.Schema(
                 {
+                    vol.Optional(CONF_NAME, default=''): cv.string,
                     vol.Required(CONF_HOST, default="localhost"): cv.string,
-                    vol.Optional(CONF_PORT, default="9510"): cv.string,
-                    vol.Optional(CONF_RETRY, default=120): int,
+                    vol.Optional(CONF_PORT, default="9510"): cv.port,
                 }
             )
 
 def computer_schema_list(value):
-    if all(isinstance(n, COMPUTER_SCHEMA) for n in value):
-        return value
+    if isinstance(value, list) and value != []:    
+        if all(isinstance(n, COMPUTER_SCHEMA) for n in value):
+            return value
     raise vol.Invalid('Not a list of computers')
 
 
 CONFIG_SCHEMA = vol.Schema(
     {
-        DOMAIN: vol.Any(COMPUTER_SCHEMA, computer_schema_list)
+        DOMAIN: vol.Schema(
+            {
+                vol.Required(CONF_HOSTS): computer_schema_list,
+                vol.Optional(CONF_RETRY, default=120): int,
+            }
+        )
     },
     extra=vol.ALLOW_EXTRA,
 )
@@ -53,14 +59,21 @@ except AssertionError as remote_error:
 except Exception as error:
     _LOGGER.error(str(error))
 
-CONNECTION = Connection()
+COMPUTERS = []
 
+def init_computers(hosts):
+    for computer in hosts:
+        name = computer.get(CONF_NAME)
+        host = computer.get(CONF_HOST)
+        port = computer.get(CONF_PORT)
 
-def connect(host, port):
-    """Handle with connect function and logs if was successful"""
-    CONNECTION.connect(host, port)
-    _LOGGER.info(f"Connection to {CONNECTION.get_url()} established")
-
+        if name == '':
+            name = host
+        try:
+            COMPUTERS.append(Computer(name, host, port))
+        except (AssertionError, Exception):
+            return False
+    return True
 
 def validate_response(response):
     """Validate keep alive packet to check if reconnection is needed"""
@@ -82,39 +95,17 @@ def validate_response(response):
         raise ConnectionError()
 
 
-def call_remote(id, action):
-    try:
-        CONNECTION.exe_remote(id, action)
-        _LOGGER.debug(f'Call -> Remote ID: "{id}"; Action: "{action}"')
-    # Log if request fails.
-    except ConnectionError:
-        _LOGGER.warning("Unable to call remote. Host is off")
-
-
 def setup(hass, config):
     """Setting up Unified Remote Integration"""
     # Fetching configuration entries.
-    host = config[DOMAIN].get(CONF_HOST)
-    port = config[DOMAIN].get(CONF_PORT)
+    hosts = config[DOMAIN].get(CONF_HOSTS)
     retry_delay = config[DOMAIN].get(CONF_RETRY)
     if retry_delay > 120:
         retry_delay = 120
 
-    try:
-        # Establishing connection with host client.
-        connect(host, port)
-    # Handling with malformed url error.
-    except AssertionError as url_error:
-        _LOGGER.error(str(url_error))
-        return False
-    except ConnectionError:
-        _LOGGER.warning(
-            "At the first moment host seems down, but the connection will be retried."
-        )
-    except Exception as e:
-        _LOGGER.error(str(e))
-        return False
+    init_computers(hosts)
 
+    # TODO: PAREI AQUI
     def keep_alive(call):
         """Keep host listening our requests"""
         try:
