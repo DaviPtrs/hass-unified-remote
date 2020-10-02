@@ -1,5 +1,6 @@
 from custom_components.unified_remote.cli.connection import Connection
 from custom_components.unified_remote.cli.remotes import Remotes
+import requests
 import logging as log
 
 _LOGGER = log.getLogger(__name__)
@@ -14,13 +15,15 @@ class Computer:
         self.name = name
         self.host = host
         self.port = port
+        self.is_available = False
         self.connection = Connection()
         try:
             self.connect()
+            self.is_available = True
         except AssertionError as url_error:
             _LOGGER.error(str(url_error))
             raise
-        except ConnectionError:
+        except requests.ConnectionError:
             _LOGGER.warning(
                 f"At the first moment {name} seems down, but the connection will be retried."
             )
@@ -29,11 +32,14 @@ class Computer:
             raise
 
     def call_remote(self, id, action):
+        if not self.is_available:
+            _LOGGER.error(f"Unable to call remote. {self.name} is unavailable.")
+            return None
         try:
             self.connection.exe_remote(id, action)
             _LOGGER.debug(f'Call -> Remote ID: "{id}"; Action: "{action}"')
         # Log if request fails.
-        except ConnectionError:
-            _LOGGER.warning(f"Unable to call remote. {self.name} is off")
+        except requests.ConnectionError:
+            _LOGGER.error(f"Unable to call remote. {self.name} is unavailable.")
     
     

@@ -15,26 +15,21 @@ from custom_components.unified_remote.cli.computer import Computer
 DOMAIN = "unified_remote"
 CONF_RETRY = "retry_delay"
 
-COMPUTER_SCHEMA = vol.Schema(
-                {
-                    vol.Optional(CONF_NAME, default=''): cv.string,
-                    vol.Required(CONF_HOST, default="localhost"): cv.string,
-                    vol.Optional(CONF_PORT, default="9510"): cv.port,
-                }
-            )
-
-def computer_schema_list(value):
-    if isinstance(value, list) and value != []:    
-        if all(isinstance(n, COMPUTER_SCHEMA) for n in value):
-            return value
-    raise vol.Invalid('Not a list of computers')
-
-
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Required(CONF_HOSTS): computer_schema_list,
+                vol.Required(CONF_HOSTS): vol.Schema(
+                    vol.All(
+                        [
+                            {
+                                vol.Optional(CONF_NAME, default=''): cv.string,
+                                vol.Required(CONF_HOST, default="localhost"): cv.string,
+                                vol.Optional(CONF_PORT, default="9510"): cv.port,
+                            }           
+                        ]
+                    )
+                ),
                 vol.Optional(CONF_RETRY, default=120): int,
             }
         )
@@ -128,6 +123,8 @@ def setup(hass, config):
                     _LOGGER.debug(f"Trying to reconnect with {computer.host}")
                     computer.connect()
                 except Exception as error:
+                    computer.is_available = False
+                    _LOGGER.info(f'The computer {computer.name} is now unavailable')
                     _LOGGER.debug(
                         f"Unable to connect with {computer.host}. Headers: {computer.connection.get_headers()}"
                     )
@@ -142,6 +139,13 @@ def setup(hass, config):
                 computer = COMPUTERS[0]    
         else:
             computer = find_computer(host_name)
+        
+        if computer is None:
+            _LOGGER.error(f"No such computer called {host_name}")
+            return None
+
+        if not computer.is_available:
+            _LOGGER.error(f"Unable to call remote. {host_name} is unavailable.")
 
         remote_name = call.data.get("remote", DEFAULT_NAME)
         remote_id = call.data.get("remote_id", DEFAULT_NAME)
