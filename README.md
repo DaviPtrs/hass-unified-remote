@@ -24,6 +24,7 @@
       - [Remotes section](#remotes-section)
       - [Types section](#types-section)
   - [How to use](#how-to-use)
+    - [Examples](#examples)
   - [Contribute](#contribute)
   - [Submit Feedback](#submit-feedback)
 
@@ -443,7 +444,17 @@ remote_id: remote_id
 action: remote_action
 ```
 
-Example:
+- You can also specify Extras entry for those remotes that requires it:
+
+```yaml
+remote_id: remote_id
+action: remote_action
+extras:
+  Values:
+    - Value: value1
+```
+
+### Examples
 
 This call will open Amazon Prime Video on my default browser.
 
@@ -473,6 +484,16 @@ If you didn't assign a computer name, the name will be same as computer ip, so:
 target: 192.168.1.2
 remote_id: Unified.AmazonPrimeVideo
 action: launch
+```
+
+This is an example using a remote that requires Extras entries. In this case, it will press down or press up the Win key.
+
+```yaml
+remote_id: Relmtech.Keyboard
+action: toggle
+extras:
+  Values:
+    - Value: LWIN
 ```
 
 - For adding buttons on your home assistant lovelace, use `Manual Card` element with `call-service` action, like:
