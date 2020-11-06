@@ -14,7 +14,8 @@
       - [Management Panel](#management-panel)
       - [Setting up](#setting-up)
     - [Home Assistant](#home-assistant)
-      - [CONFIGURATION VARIABLES](#configuration-variables)
+      - [CONFIGURATION VARIABLES (For unified_remote)](#configuration-variables-for-unified_remote)
+      - [CONFIGURATION VARIABLES (For each host)](#configuration-variables-for-each-host)
   - [Getting Started](#getting-started)
     - [How it works](#how-it-works)
       - [Remote description](#remote-description)
@@ -23,8 +24,6 @@
       - [Remotes section](#remotes-section)
       - [Types section](#types-section)
   - [How to use](#how-to-use)
-    - [Service](#service)
-    - [Switch Platform](#switch-platform)
   - [Contribute](#contribute)
   - [Submit Feedback](#submit-feedback)
 
@@ -83,10 +82,31 @@ On your `configuration.yaml` file, add the following lines:
 
 ```yaml
 unified_remote:
-  host: UNIFIED_REMOTE_SERVER_IP
+  hosts:
+    - host: UNIFIED_REMOTE_SERVER_IP
 ```
 
-#### CONFIGURATION VARIABLES
+#### CONFIGURATION VARIABLES (For unified_remote)
+
+**hosts**
+
+*(list)(Required)*
+
+List of hosts
+
+============================================
+
+**retry_delay**
+
+*(number)(Optional)*
+
+Time to retry connection and/or keep it alive (seconds). You **CANNOT** set a delay greater than 120 seconds, this is the max value that will keep the connection alive.
+
+*Default value:*
+
+retry_delay: 120
+
+#### CONFIGURATION VARIABLES (For each host)
 **host**
 
 *(string)(Required)*
@@ -107,15 +127,15 @@ port: 9510
 
 ============================================
 
-**retry_delay**
+**name**
 
-*(number)(Optional)*
+*(string)(Optional)*
 
-Time to retry connection and/or keep it alive (seconds). You **CANNOT** set a delay greater than 120 seconds, this is the max value that will keep the connection alive.
+A name to identify the host. If unset, the name will be the host ip.
 
 *Default value:*
 
-retry_delay: 120
+name: \<host ip\>
 
 ## Getting Started
 
@@ -135,7 +155,7 @@ Example:
 
 - If you want to turn off your computer, you need to use this remote
 ```
-remote_id: Unified.Power
+id: Unified.Power
 action: turn_off
 ```
 
@@ -393,8 +413,6 @@ With the previous cases, we just declared 2 media_video remotes, but think if we
 
 Now we got a configured integration and declarated remotes, we have to be able to execute these action using remotes, of course, inside of Home Assistant.
 
-### Service
-
 This integration actualy register a service, called by `unified_remote.call`
 
 That service allows you to call your remotes.
@@ -456,30 +474,10 @@ That example will restart my computer if I tap the button, after I accept the co
 
 ![demo-card](images/demo-card.png)
 
-### Switch Platform
-
-It also comes with a switch platform, so you can define which action will be performed when swith goes on, off, or being  (toggle options are little buggy)
-
-The following example is a switch that controls my monitor screen
-
-```yaml
-switch:
-  - platform: unified_remote
-    name: "computer_screen"
-    turn_on:
-      remote: monitor
-      action: turn_on
-    turn_off:
-      remote: monitor
-      action: turn_off
-```
-
-![demo-switch](images/demo-switch.png)
-
 ## Contribute
 
 Contributions are always welcome!
-If you need some light, read some of following guides: 
+If you need some light, read some of the following guides: 
 - [The beginner's guide to contributing to a GitHub project](https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/)
 - [First Contributions](https://github.com/firstcontributions/first-contributions)
 - [How to contribute to open source](https://github.com/freeCodeCamp/how-to-contribute-to-open-source)
@@ -487,6 +485,6 @@ If you need some light, read some of following guides:
 
 ## Submit Feedback
 
-Be free to [open an issue](https://github.com/DaviPtrs/hass-unified-remote/issues/new/choose) telling your experience, suggesting new features or asking questions (there's no stupid questions, but make sure that yours cannot be answered by just reading docs)
+Be free to [open an issue](https://github.com/DaviPtrs/hass-unified-remote/issues/new/choose) telling your experience, suggesting new features or asking questions (there's no stupid questions, but make sure that yours cannot be answered by just reading the docs)
 
 You can also find me on LinkedIn [/in/davipetris](https://www.linkedin.com/in/davipetris/)
