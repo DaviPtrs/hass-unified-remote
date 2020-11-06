@@ -2,25 +2,33 @@
 import logging as log
 from datetime import timedelta
 
-from requests import ConnectionError
-
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from custom_components.unified_remote.cli.connection import Connection
-from custom_components.unified_remote.cli.remotes import Remotes
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_HOSTS, CONF_NAME, CONF_PORT
 from homeassistant.helpers.event import track_time_interval
+from requests import ConnectionError
+
+from custom_components.unified_remote.cli.computer import Computer
+from custom_components.unified_remote.cli.remotes import Remotes
 
 DOMAIN = "unified_remote"
-
 CONF_RETRY = "retry_delay"
 
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Required(CONF_HOST, default="localhost"): cv.string,
-                vol.Optional(CONF_PORT, default="9510"): cv.string,
+                vol.Required(CONF_HOSTS): vol.Schema(
+                    vol.All(
+                        [
+                            {
+                                vol.Optional(CONF_NAME, default=""): cv.string,
+                                vol.Required(CONF_HOST, default="localhost"): cv.string,
+                                vol.Optional(CONF_PORT, default="9510"): cv.port,
+                            }
+                        ]
+                    )
+                ),
                 vol.Optional(CONF_RETRY, default=120): int,
             }
         )
@@ -45,13 +53,29 @@ except AssertionError as remote_error:
 except Exception as error:
     _LOGGER.error(str(error))
 
-CONNECTION = Connection()
+COMPUTERS = []
 
 
-def connect(host, port):
-    """Handle with connect function and logs if was successful"""
-    CONNECTION.connect(host, port)
-    _LOGGER.info(f"Connection to {CONNECTION.get_url()} established")
+def init_computers(hosts):
+    for computer in hosts:
+        name = computer.get(CONF_NAME)
+        host = computer.get(CONF_HOST)
+        port = computer.get(CONF_PORT)
+
+        if name == "":
+            name = host
+        try:
+            COMPUTERS.append(Computer(name, host, port))
+        except (AssertionError, Exception):
+            return False
+    return True
+
+
+def find_computer(name):
+    for computer in COMPUTERS:
+        if computer.name == name:
+            return computer
+    return None
 
 
 def validate_response(response):
@@ -74,63 +98,57 @@ def validate_response(response):
         raise ConnectionError()
 
 
-def call_remote(id, action):
-    try:
-        CONNECTION.exe_remote(id, action)
-        _LOGGER.debug(f'Call -> Remote ID: "{id}"; Action: "{action}"')
-    # Log if request fails.
-    except ConnectionError:
-        _LOGGER.warning("Unable to call remote. Host is off")
-
-
 def setup(hass, config):
     """Setting up Unified Remote Integration"""
     # Fetching configuration entries.
-    host = config[DOMAIN].get(CONF_HOST)
-    port = config[DOMAIN].get(CONF_PORT)
+    hosts = config[DOMAIN].get(CONF_HOSTS)
     retry_delay = config[DOMAIN].get(CONF_RETRY)
     if retry_delay > 120:
         retry_delay = 120
 
-    try:
-        # Establishing connection with host client.
-        connect(host, port)
-    # Handling with malformed url error.
-    except AssertionError as url_error:
-        _LOGGER.error(str(url_error))
-        return False
-    except ConnectionError:
-        _LOGGER.warning(
-            "At the first moment host seems down, but the connection will be retried."
-        )
-    except Exception as e:
-        _LOGGER.error(str(e))
+    if not init_computers(hosts):
         return False
 
     def keep_alive(call):
         """Keep host listening our requests"""
-        try:
-            response = CONNECTION.exe_remote("", "")
-            _LOGGER.debug("Keep alive packet sent")
-            _LOGGER.debug(
-                f"Keep alive packet response: {response.content.decode('ascii')}"
-            )
-            validate_response(response)
-        # If there's an connection error, try to reconnect.
-        except ConnectionError:
+        for computer in COMPUTERS:
             try:
-                _LOGGER.debug(f"Trying to reconnect with {host}")
-                connect(host, port)
-            except Exception as error:
+                response = computer.connection.exe_remote("", "")
+                _LOGGER.debug("Keep alive packet sent")
                 _LOGGER.debug(
-                    f"Unable to connect with {host}. Headers: {CONNECTION.get_headers()}"
+                    f"Keep alive packet response: {response.content.decode('ascii')}"
                 )
-                _LOGGER.debug(f"Error: {error}")
-                pass
+                validate_response(response)
+            # If there's an connection error, try to reconnect.
+            except ConnectionError:
+                try:
+                    _LOGGER.debug(f"Trying to reconnect with {computer.host}")
+                    computer.connect()
+                except Exception as error:
+                    computer.is_available = False
+                    _LOGGER.info(f"The computer {computer.name} is now unavailable")
+                    _LOGGER.debug(
+                        f"Unable to connect with {computer.host}. Headers: {computer.connection.get_headers()}"
+                    )
+                    _LOGGER.debug(f"Error: {error}")
+                    pass
 
     def handle_call(call):
         """Handle the service call."""
         # Fetch service data.
+        target = remote_name = call.data.get("target")
+        if target is None or target.strip() == "":
+            computer = COMPUTERS[0]
+        else:
+            computer = find_computer(target)
+
+        if computer is None:
+            _LOGGER.error(f"No such computer called {target}")
+            return None
+
+        if not computer.is_available:
+            _LOGGER.error(f"Unable to call remote. {target} is unavailable.")
+
         remote_name = call.data.get("remote", DEFAULT_NAME)
         remote_id = call.data.get("remote_id", DEFAULT_NAME)
         action = call.data.get("action", DEFAULT_NAME)
@@ -138,7 +156,7 @@ def setup(hass, config):
         # Allows user to pass remote id without declaring it on remotes.yml
         if remote_id is not None:
             if not (remote_id == "" or action == ""):
-                call_remote(remote_id, action)
+                computer.call_remote(remote_id, action)
                 return None
 
         # Check if none or empty service data was parsed.
@@ -154,7 +172,7 @@ def setup(hass, config):
             remote_id = remote["id"]
             # Check if given action exists in remote control list.
             if action in remote["controls"]:
-                call_remote(remote_id, action)
+                computer.call_remote(remote_id, action)
             else:
                 # Log if called remote doens't exists on remotes.yml.
                 _LOGGER.warning(
