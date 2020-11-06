@@ -8,9 +8,32 @@
   <img src="images/demo.png" />
 </p>
 
+## Breaking changes after v1.1.0
+
+The integration config entry is not longer related to a single host, but to a list of hosts, which allows you to control many computers using Home Assistant and Unified Remote. So:
+
+Update your configuration entry from this:
+```yaml
+unified_remote:
+  host: 192.168.1.2
+  port: 9510
+  retry_delay: 60
+```
+To this:
+
+```yaml
+unified_remote:
+  hosts:
+    - host: 192.168.1.2
+      port: 9510
+  retry_delay: 60
+```
+
+
 ## Documentation guide
 
 - [Unified Remote Integration for HASS](#unified-remote-integration-for-hass)
+  - [Breaking changes after v1.1.0](#breaking-changes-after-v110)
   - [Documentation guide](#documentation-guide)
   - [Installation](#installation)
     - [Unified Remote](#unified-remote)
