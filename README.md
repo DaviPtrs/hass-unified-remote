@@ -3,7 +3,10 @@
 
 [![license](https://img.shields.io/github/license/DaviPtrs/hass-unified-remote)](License)
 
-![demo](images/demo.png)
+
+<p align="center">
+  <img src="images/demo.png" />
+</p>
 
 ## Documentation guide
 
@@ -37,19 +40,25 @@ Just download [Unified Remote server](https://www.unifiedremote.com/download) fo
 
 **If you use windows, make sure to allow "Windows service (Experimental)" option on installation.**
 
-![download](images/1.png)
+<p align="center">
+  <img src="images/1.png" />
+</p>
 
 #### Management Panel
 
 After installation, click with right mouse button on icon and go to management panel by click "Manage" (on windows)
 
-![manage](images/2.png)
+<p align="center">
+  <img src="images/2.png" />
+</p>
 
 If you're not using Windows, you can access the management panel just by accessing this address http://localhost:9510/web/, that is general access form that works with any OS.
 
 The management panel should look like this:
 
-![panel](images/3.png)
+<p align="center">
+  <img src="images/3.png" />
+</p>
 
 #### Setting up
 
@@ -61,11 +70,17 @@ Now we are going to set some options to make this integration works without more
 
 - For security reasons, you also should disallow "*Allow management from a different LAN computer*" option.
 
-![network-section](images/4.png)
+
+<p align="center">
+  <img src="images/4.png" />
+</p>
 
 Next section will be **Security**, on this one you must change *Authetication* to "*Do not require apps to enter a password before connecting.*"
 
-![security-section](images/5.png)
+
+<p align="center">
+  <img src="images/5.png" />
+</p>
 
 > **The integration **WON'T WORK** if you set a password, but don't worry, to secure the installation, you can set your firewall to only receive connections on 9510-9512 port range that comes from your Home Assistant local IP (and your local computer IP, of course).**
 
@@ -171,29 +186,41 @@ action: launch
 To find these required information about some remote: 
 - First open the web client on http://localhost:9510/client/ (if you wanna do this in another computer, just replace "localhost" by your target computer IP)
 
-![web-client](images/8.png)
+<p align="center">
+  <img src="images/8.png" />
+</p>
 
 - Choose your desired remote on the left menu, for this example we'll be using *Spotify* Remote
 - After choose, you will see, on URL, the remote ID. In our example: `Unified.Spotify`
 
-![example-remote](images/9.png)
+<p align="center">
+  <img src="images/9.png" />
+</p>
 
 - To get the action name, open the browser network monitor (usually you have to press `F12` and click on `Network` tab)
 
-![network-monitor](images/10.png)
+<p align="center">
+  <img src="images/10.png" />
+</p>
 
 - Then, click on desired action button, for this example, we'll click on `Play` button
 - After that, a "request" element will be displayed, that is our action request
 
-![action-button](images/11.png)
+<p align="center">
+  <img src="images/11.png" />
+</p>
 
 - Click on it, and you will get something like this
 
-![request](images/12.png)
+<p align="center">
+  <img src="images/12.png" />
+</p>
 
 - Scroll down on headers section until you find a "Form data" sub-section, here we got a JSON, and in `Name`, there's a string. That was our desired action name.
 
-![post-data](images/13.png)
+<p align="center">
+  <img src="images/13.png" />
+</p>
 
 So we finaly got all required information to use Spotify Remote to play/pause our songs:
 ```
@@ -517,7 +544,9 @@ show_state: true
 
 That example will restart my computer if I tap the button, after I accept the confirmation pop-up.
 
-![demo-card](images/demo-card.png)
+<p align="center">
+  <img src="images/demo-card.png" />
+</p>
 
 ## Contribute
 
