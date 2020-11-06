@@ -435,7 +435,15 @@ remote_id: remote_id
 action: remote_action
 ```
 
-For example:
+- To specify which computer will receive the command, just add a `target` entry:
+
+```yaml
+target: computer_name
+remote_id: remote_id
+action: remote_action
+```
+
+Example:
 
 This call will open Amazon Prime Video on my default browser.
 
@@ -447,6 +455,22 @@ action: launch
 That will do the same, but without declare it first.
 
 ```yaml
+remote_id: Unified.AmazonPrimeVideo
+action: launch
+```
+
+The same but specifying a computer by name:
+
+```yaml
+target: PcMasterRace
+remote_id: Unified.AmazonPrimeVideo
+action: launch
+```
+
+If you didn't assign a computer name, the name will be same as computer ip, so:
+
+```yaml
+target: 192.168.1.2
 remote_id: Unified.AmazonPrimeVideo
 action: launch
 ```
