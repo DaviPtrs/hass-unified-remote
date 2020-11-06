@@ -152,11 +152,12 @@ def setup(hass, config):
         remote_name = call.data.get("remote", DEFAULT_NAME)
         remote_id = call.data.get("remote_id", DEFAULT_NAME)
         action = call.data.get("action", DEFAULT_NAME)
+        extras = call.data.get("extras")
 
         # Allows user to pass remote id without declaring it on remotes.yml
         if remote_id is not None:
             if not (remote_id == "" or action == ""):
-                computer.call_remote(remote_id, action)
+                computer.call_remote(remote_id, action, extras)
                 return None
 
         # Check if none or empty service data was parsed.
@@ -172,7 +173,7 @@ def setup(hass, config):
             remote_id = remote["id"]
             # Check if given action exists in remote control list.
             if action in remote["controls"]:
-                computer.call_remote(remote_id, action)
+                computer.call_remote(remote_id, action, extras)
             else:
                 # Log if called remote doens't exists on remotes.yml.
                 _LOGGER.warning(

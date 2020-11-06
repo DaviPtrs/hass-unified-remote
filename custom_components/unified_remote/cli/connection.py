@@ -88,7 +88,7 @@ class Connection:
             self.__url + "request", headers=self.__headers, data=dumps(payload)
         )
 
-    def exe_remote(self, remoteID, action):
+    def exe_remote(self, remoteID, action, extras=None):
         """Executes given remote id and action using a post request.\n
         Returns request response for exception handling purpose."""
 
@@ -99,6 +99,9 @@ class Connection:
             "Run": {"Name": action},
             "Source": self.__source_guid,
         }
+        if extras is not None:
+            payload["Run"]["Extras"] = extras
+
         return self.__session.post(
             self.__url + "request", headers=self.__headers, data=dumps(payload)
         )
