@@ -1,6 +1,9 @@
 call:
   description: "Trigger remotes on target host using Unified Remote web client"
   fields:
+    target:
+      description: "Computer name to receive commands. Empty value means the first computer registered."
+      example: ""
     remote:
       description: "Remote name defined on remotes.yml file"
       example: "prime_video"
