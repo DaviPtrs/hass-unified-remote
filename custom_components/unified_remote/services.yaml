@@ -10,3 +10,6 @@ call:
     action:
       description: "An action to perform with this remote"
       example: "launch"
+    extras:
+      description: "Extra arguments for use with some remotes"
+      example: "launch"
