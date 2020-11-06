@@ -33,13 +33,13 @@ class Computer:
             _LOGGER.error(str(e))
             raise
 
-    def call_remote(self, id, action):
+    def call_remote(self, id, action, extras=None):
         if not self.is_available:
             _LOGGER.error(f"Unable to call remote. {self.name} is unavailable.")
             return None
         try:
-            self.connection.exe_remote(id, action)
-            _LOGGER.debug(f'Call -> Remote ID: "{id}"; Action: "{action}"')
+            self.connection.exe_remote(id, action, extras)
+            _LOGGER.debug(f'Call -> Remote ID: "{id}"; Action: "{action}"; Extras: "{extras}"')
         # Log if request fails.
         except requests.ConnectionError:
             _LOGGER.error(f"Unable to call remote. {self.name} is unavailable.")
