@@ -134,18 +134,18 @@ def setup(hass, config):
     def handle_call(call):
         """Handle the service call."""
         # Fetch service data.
-        host_name = remote_name = call.data.get("host_name")
-        if host_name is None or host_name.strip() == '':
+        target = remote_name = call.data.get("target")
+        if target is None or target.strip() == '':
                 computer = COMPUTERS[0]    
         else:
-            computer = find_computer(host_name)
+            computer = find_computer(target)
         
         if computer is None:
-            _LOGGER.error(f"No such computer called {host_name}")
+            _LOGGER.error(f"No such computer called {target}")
             return None
 
         if not computer.is_available:
-            _LOGGER.error(f"Unable to call remote. {host_name} is unavailable.")
+            _LOGGER.error(f"Unable to call remote. {target} is unavailable.")
 
         remote_name = call.data.get("remote", DEFAULT_NAME)
         remote_id = call.data.get("remote_id", DEFAULT_NAME)
