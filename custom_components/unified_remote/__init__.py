@@ -2,15 +2,14 @@
 import logging as log
 from datetime import timedelta
 
-from requests import ConnectionError
-
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from custom_components.unified_remote.cli.connection import Connection
-from custom_components.unified_remote.cli.remotes import Remotes
-from homeassistant.const import CONF_HOST, CONF_PORT, CONF_HOSTS, CONF_NAME
+from homeassistant.const import CONF_HOST, CONF_HOSTS, CONF_NAME, CONF_PORT
 from homeassistant.helpers.event import track_time_interval
+from requests import ConnectionError
+
 from custom_components.unified_remote.cli.computer import Computer
+from custom_components.unified_remote.cli.remotes import Remotes
 
 DOMAIN = "unified_remote"
 CONF_RETRY = "retry_delay"
@@ -23,10 +22,10 @@ CONFIG_SCHEMA = vol.Schema(
                     vol.All(
                         [
                             {
-                                vol.Optional(CONF_NAME, default=''): cv.string,
+                                vol.Optional(CONF_NAME, default=""): cv.string,
                                 vol.Required(CONF_HOST, default="localhost"): cv.string,
                                 vol.Optional(CONF_PORT, default="9510"): cv.port,
-                            }           
+                            }
                         ]
                     )
                 ),
@@ -56,13 +55,14 @@ except Exception as error:
 
 COMPUTERS = []
 
+
 def init_computers(hosts):
     for computer in hosts:
         name = computer.get(CONF_NAME)
         host = computer.get(CONF_HOST)
         port = computer.get(CONF_PORT)
 
-        if name == '':
+        if name == "":
             name = host
         try:
             COMPUTERS.append(Computer(name, host, port))
@@ -70,11 +70,13 @@ def init_computers(hosts):
             return False
     return True
 
+
 def find_computer(name):
     for computer in COMPUTERS:
         if computer.name == name:
             return computer
     return None
+
 
 def validate_response(response):
     """Validate keep alive packet to check if reconnection is needed"""
@@ -124,7 +126,7 @@ def setup(hass, config):
                     computer.connect()
                 except Exception as error:
                     computer.is_available = False
-                    _LOGGER.info(f'The computer {computer.name} is now unavailable')
+                    _LOGGER.info(f"The computer {computer.name} is now unavailable")
                     _LOGGER.debug(
                         f"Unable to connect with {computer.host}. Headers: {computer.connection.get_headers()}"
                     )
@@ -135,11 +137,11 @@ def setup(hass, config):
         """Handle the service call."""
         # Fetch service data.
         target = remote_name = call.data.get("target")
-        if target is None or target.strip() == '':
-                computer = COMPUTERS[0]    
+        if target is None or target.strip() == "":
+            computer = COMPUTERS[0]
         else:
             computer = find_computer(target)
-        
+
         if computer is None:
             _LOGGER.error(f"No such computer called {target}")
             return None

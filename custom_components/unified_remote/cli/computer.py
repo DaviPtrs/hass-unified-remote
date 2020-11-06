@@ -1,9 +1,11 @@
-from custom_components.unified_remote.cli.connection import Connection
-from custom_components.unified_remote.cli.remotes import Remotes
-import requests
 import logging as log
 
+import requests
+
+from custom_components.unified_remote.cli.connection import Connection
+
 _LOGGER = log.getLogger(__name__)
+
 
 class Computer:
     def connect(self):
@@ -41,5 +43,3 @@ class Computer:
         # Log if request fails.
         except requests.ConnectionError:
             _LOGGER.error(f"Unable to call remote. {self.name} is unavailable.")
-    
-    
