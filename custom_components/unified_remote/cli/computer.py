@@ -11,6 +11,7 @@ class Computer:
     def connect(self):
         """Handle with connect function and logs if was successful"""
         self.connection.connect(self.host, self.port)
+        self.is_available = True
         _LOGGER.info(f"Connection to {self.name} established")
 
     def __init__(self, name: str, host: str, port: int):
@@ -21,7 +22,6 @@ class Computer:
         self.connection = Connection()
         try:
             self.connect()
-            self.is_available = True
         except AssertionError as url_error:
             _LOGGER.error(str(url_error))
             raise
@@ -32,6 +32,11 @@ class Computer:
         except Exception as e:
             _LOGGER.error(str(e))
             raise
+
+    def reconnect(self):
+        self.connection = None
+        self.connection = Connection()
+        self.connect()
 
     def call_remote(self, id, action, extras=None):
         if not self.is_available:

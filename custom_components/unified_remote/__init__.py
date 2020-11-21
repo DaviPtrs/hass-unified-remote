@@ -123,7 +123,7 @@ def setup(hass, config):
             except ConnectionError:
                 try:
                     _LOGGER.debug(f"Trying to reconnect with {computer.host}")
-                    computer.connect()
+                    computer.reconnect()
                 except Exception as error:
                     computer.is_available = False
                     _LOGGER.info(f"The computer {computer.name} is now unavailable")
@@ -145,9 +145,6 @@ def setup(hass, config):
         if computer is None:
             _LOGGER.error(f"No such computer called {target}")
             return None
-
-        if not computer.is_available:
-            _LOGGER.error(f"Unable to call remote. {target} is unavailable.")
 
         remote_name = call.data.get("remote", DEFAULT_NAME)
         remote_id = call.data.get("remote_id", DEFAULT_NAME)
