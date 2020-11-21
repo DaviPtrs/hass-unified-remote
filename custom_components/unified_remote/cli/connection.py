@@ -16,6 +16,9 @@ class Connection:
         # Creating a persistent http session
         self.__session = Session()
 
+    def __del__(self):
+        self.__session.close()
+
     def connect(self, host, port):
         "Establish connection with host client."
 
