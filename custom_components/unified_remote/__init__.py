@@ -125,8 +125,7 @@ def setup(hass, config):
                     _LOGGER.debug(f"Trying to reconnect with {computer.host}")
                     computer.reconnect()
                 except Exception as error:
-                    computer.is_available = False
-                    _LOGGER.info(f"The computer {computer.name} is now unavailable")
+                    computer.set_unavailable()
                     _LOGGER.debug(
                         f"Unable to connect with {computer.host}. Headers: {computer.connection.get_headers()}"
                     )
