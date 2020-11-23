@@ -48,3 +48,8 @@ class Computer:
         # Log if request fails.
         except requests.ConnectionError:
             _LOGGER.error(f"Unable to call remote. {self.name} is unavailable.")
+
+    def set_unavailable(self):
+        if self.is_available:
+            self.is_available = False
+            _LOGGER.info(f"The computer {self.name} is now unavailable")
