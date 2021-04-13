@@ -4,5 +4,6 @@
   "documentation": "",
   "dependencies": [],
   "codeowners": ["@DaviPtrs"],
-  "requirements": []
+  "requirements": [],
+  "version": 6
 }
