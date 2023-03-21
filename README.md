@@ -91,7 +91,8 @@ Now we are going to set some options to make this integration works without more
 
 - Now make sure that "*Enable web-based client (http://localhost:9510/client)*" box is allowed.
 
-- For security reasons, you also should disallow "*Allow management from a different LAN computer*" option.
+- ~For security reasons, you also should disallow "*Allow management from a different LAN computer*" option.~
+  *UPDATE*: After Unified Remote version 3.13, you actually must allow this option, otherwise Home Assistant won't be able to reach the web client. To avoid unauthorized access, just setup a firewall rule on your host machine that only allows access from Home Assistant private IP address.
 
 
 <p align="center">
